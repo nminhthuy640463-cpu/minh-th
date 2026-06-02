@@ -1,63 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandarin Master - Luyện Phát Âm</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Luyện Phát Âm Tiếng Trung</title>
     <style>
-        .bg-gradient { background: linear-gradient(135deg, #fceab8, #fd9d63); }
+        :root { --main-color: #ff4757; --bg-color: #f1f2f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        .btn { padding: 15px 30px; border: none; border-radius: 50px; cursor: pointer; font-size: 16px; margin: 10px; transition: 0.3s; }
+        .btn-speak { background: var(--main-color); color: white; }
+        #score { font-size: 24px; font-weight: bold; color: var(--main-color); margin-top: 20px; }
     </style>
 </head>
-<body class="bg-gradient min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
-        <h1 class="text-3xl font-bold text-orange-600 mb-6">HSK Pronounce</h1>
-        
-        <select id="levelSelect" class="w-full p-3 mb-6 rounded-xl border-2 border-orange-200 focus:outline-none focus:border-orange-500">
-            <option value="HSK1">HSK 1: Cơ bản</option>
-            <option value="HSK2">HSK 2: Sơ cấp</option>
-            <option value="HSK3">HSK 3: Trung cấp</option>
-        </select>
+<div class="card">
+    <h1>Luyện Phát Âm HSK</h1>
+    <select id="level">
+        <option value="1">HSK 1</option>
+        <option value="2">HSK 2</option>
+        <option value="3">HSK 3</option>
+    </select>
+    <h2 id="word">你好 (Nǐ hǎo)</h2>
+    <button class="btn" onclick="playAudio()">Nghe mẫu</button>
+    <button class="btn btn-speak" onclick="startRecognition()">Bắt đầu nói</button>
+    <div id="result"></div>
+    <div id="score"></div>
+</div>
 
-        <div id="wordDisplay" class="text-6xl font-black text-gray-800 mb-8 py-10 bg-orange-50 rounded-2xl">你好</div>
+<script>
+    const wordDisplay = document.getElementById('word');
+    
+    // Sử dụng Web Speech API (tích hợp sẵn trong trình duyệt)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN'; // Ngôn ngữ tiếng Trung
 
-        <div class="grid grid-cols-2 gap-4">
-            <button onclick="playAudio()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-2xl transition">🔊 Nghe</button>
-            <button onclick="startRecognition()" id="micBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl transition">🎤 Nói</button>
-        </div>
+    function playAudio() {
+        const msg = new SpeechSynthesisUtterance(wordDisplay.innerText.split(' ')[0]);
+        msg.lang = 'zh-CN';
+        window.speechSynthesis.speak(msg);
+    }
 
-        <p id="result" class="mt-6 text-lg font-medium text-gray-600 italic">Nhấn "Nói" để bắt đầu...</p>
-    </div>
-
-    <script>
-        const words = { "HSK1": "你好", "HSK2": "睡觉", "HSK3": "简单" };
-        
-        function playAudio() {
-            const text = document.getElementById('wordDisplay').innerText;
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'zh-CN';
-            window.speechSynthesis.speak(msg);
-        }
-
-        function startRecognition() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            const resultEl = document.getElementById('result');
-            const target = document.getElementById('wordDisplay').innerText;
-            
-            recognition.lang = 'zh-CN';
-            resultEl.innerText = "Đang lắng nghe...";
-            
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                if(transcript.includes(target) || target.includes(transcript)) {
-                    resultEl.innerHTML = `<span class="text-green-600">Tuyệt vời! Chính xác: ${transcript}</span>`;
-                } else {
-                    resultEl.innerHTML = `<span class="text-red-500">Chưa đúng. Bạn đã nói: ${transcript}</span>`;
-                }
-            };
-            recognition.start();
-        }
-    </script>
+    function startRecognition() {
+        recognition.start();
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('result').innerText = "Bạn đã nói: " + transcript;
+            // Logic chấm điểm đơn giản
+            const score = transcript.includes('你好') ? 100 : 50;
+            document.getElementById('score').innerText = "Điểm của bạn: " + score;
+        };
+    }
+</script>
 </body>
 </html>
