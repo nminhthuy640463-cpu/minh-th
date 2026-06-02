@@ -1,1 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Luyện Phát Âm Tiếng Trung</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; width: 300px; margin: auto; }
+        button { margin: 10px; padding: 10px 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
 
+    <h1>Luyện Phát Âm HSK</h1>
+    <select id="level">
+        <option value="HSK1">HSK 1</option>
+        <option value="HSK2">HSK 2</option>
+        <option value="HSK3">HSK 3</option>
+    </select>
+    
+    <div class="card">
+        <h2 id="word">你好 (Nǐ hǎo)</h2>
+        <button onclick="speak()">Nghe mẫu</button>
+        <button onclick="startRecognition()">Nói thử</button>
+        <p id="result">Kết quả: ...</p>
+    </div>
+
+    <script>
+        // Dữ liệu mẫu (Bạn có thể mở rộng danh sách này)
+        const data = {
+            "HSK1": "你好",
+            "HSK2": "睡觉",
+            "HSK3": "简单"
+        };
+
+        function speak() {
+            const text = document.getElementById('word').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN'; // Ngôn ngữ tiếng Trung
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function startRecognition() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'zh-CN';
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('result').innerText = "Bạn nói: " + transcript;
+            };
+            recognition.start();
+        }
+    </script>
+</body>
+</html>
