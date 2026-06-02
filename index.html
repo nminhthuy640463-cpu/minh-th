@@ -2,50 +2,59 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>Luyện Phát Âm Tiếng Trung</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandarin Master - Luyện Phát Âm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; }
-        .card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; width: 300px; margin: auto; }
-        button { margin: 10px; padding: 10px 20px; cursor: pointer; }
+        .bg-gradient { background: linear-gradient(135deg, #fceab8, #fd9d63); }
     </style>
 </head>
-<body>
+<body class="bg-gradient min-h-screen flex items-center justify-center p-4">
 
-    <h1>Luyện Phát Âm HSK</h1>
-    <select id="level">
-        <option value="HSK1">HSK 1</option>
-        <option value="HSK2">HSK 2</option>
-        <option value="HSK3">HSK 3</option>
-    </select>
-    
-    <div class="card">
-        <h2 id="word">你好 (Nǐ hǎo)</h2>
-        <button onclick="speak()">Nghe mẫu</button>
-        <button onclick="startRecognition()">Nói thử</button>
-        <p id="result">Kết quả: ...</p>
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
+        <h1 class="text-3xl font-bold text-orange-600 mb-6">HSK Pronounce</h1>
+        
+        <select id="levelSelect" class="w-full p-3 mb-6 rounded-xl border-2 border-orange-200 focus:outline-none focus:border-orange-500">
+            <option value="HSK1">HSK 1: Cơ bản</option>
+            <option value="HSK2">HSK 2: Sơ cấp</option>
+            <option value="HSK3">HSK 3: Trung cấp</option>
+        </select>
+
+        <div id="wordDisplay" class="text-6xl font-black text-gray-800 mb-8 py-10 bg-orange-50 rounded-2xl">你好</div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="playAudio()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-2xl transition">🔊 Nghe</button>
+            <button onclick="startRecognition()" id="micBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl transition">🎤 Nói</button>
+        </div>
+
+        <p id="result" class="mt-6 text-lg font-medium text-gray-600 italic">Nhấn "Nói" để bắt đầu...</p>
     </div>
 
     <script>
-        // Dữ liệu mẫu (Bạn có thể mở rộng danh sách này)
-        const data = {
-            "HSK1": "你好",
-            "HSK2": "睡觉",
-            "HSK3": "简单"
-        };
-
-        function speak() {
-            const text = document.getElementById('word').innerText;
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-CN'; // Ngôn ngữ tiếng Trung
-            window.speechSynthesis.speak(utterance);
+        const words = { "HSK1": "你好", "HSK2": "睡觉", "HSK3": "简单" };
+        
+        function playAudio() {
+            const text = document.getElementById('wordDisplay').innerText;
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'zh-CN';
+            window.speechSynthesis.speak(msg);
         }
 
         function startRecognition() {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            const resultEl = document.getElementById('result');
+            const target = document.getElementById('wordDisplay').innerText;
+            
             recognition.lang = 'zh-CN';
+            resultEl.innerText = "Đang lắng nghe...";
+            
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                document.getElementById('result').innerText = "Bạn nói: " + transcript;
+                if(transcript.includes(target) || target.includes(transcript)) {
+                    resultEl.innerHTML = `<span class="text-green-600">Tuyệt vời! Chính xác: ${transcript}</span>`;
+                } else {
+                    resultEl.innerHTML = `<span class="text-red-500">Chưa đúng. Bạn đã nói: ${transcript}</span>`;
+                }
             };
             recognition.start();
         }
